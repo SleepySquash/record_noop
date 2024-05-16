@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:record_platform_interface/record_platform_interface.dart';
-import 'package:record_web/recorder/recorder.dart';
 
 class RecordPluginWeb {
   static void registerWith(Registrar registrar) {
@@ -12,105 +11,76 @@ class RecordPluginWeb {
 }
 
 class RecordPluginWebWrapper extends RecordPlatform {
-  // recorders from recorderId
-  final _recorders = <String, Recorder>{};
+  @override
+  Future<void> create(String recorderId) async {}
 
   @override
-  Future<void> create(String recorderId) async {
-    _recorders[recorderId] = Recorder();
+  Future<void> dispose(String recorderId) async {}
+
+  @override
+  Future<bool> hasPermission(String recorderId) async {
+    return false;
   }
 
   @override
-  Future<void> dispose(String recorderId) async {
-    final recorder = _getRecorder(recorderId);
-    await recorder.dispose();
-
-    _recorders.remove(recorderId);
+  Future<bool> isPaused(String recorderId) async {
+    return false;
   }
 
   @override
-  Future<bool> hasPermission(String recorderId) {
-    return _getRecorder(recorderId).hasPermission();
+  Future<bool> isRecording(String recorderId) async {
+    return false;
   }
 
   @override
-  Future<bool> isPaused(String recorderId) {
-    return _getRecorder(recorderId).isPaused();
-  }
+  Future<void> pause(String recorderId) async {}
 
   @override
-  Future<bool> isRecording(String recorderId) {
-    return _getRecorder(recorderId).isRecording();
-  }
-
-  @override
-  Future<void> pause(String recorderId) {
-    return _getRecorder(recorderId).pause();
-  }
-
-  @override
-  Future<void> resume(String recorderId) {
-    return _getRecorder(recorderId).resume();
-  }
+  Future<void> resume(String recorderId) async {}
 
   @override
   Future<void> start(
     String recorderId,
     RecordConfig config, {
     required String path,
-  }) {
-    return _getRecorder(recorderId).start(config, path: path);
-  }
+  }) async {}
 
   @override
   Future<Stream<Uint8List>> startStream(
     String recorderId,
     RecordConfig config,
-  ) {
-    return _getRecorder(recorderId).startStream(config);
+  ) async {
+    return const Stream.empty();
   }
 
   @override
-  Future<String?> stop(String recorderId) {
-    return _getRecorder(recorderId).stop();
+  Future<String?> stop(String recorderId) async {
+    return null;
   }
 
   @override
-  Future<void> cancel(String recorderId) {
-    return _getRecorder(recorderId).cancel();
+  Future<void> cancel(String recorderId) async {}
+
+  @override
+  Future<List<InputDevice>> listInputDevices(String recorderId) async {
+    return [];
   }
 
   @override
-  Future<List<InputDevice>> listInputDevices(String recorderId) {
-    return _getRecorder(recorderId).listInputDevices();
+  Future<bool> isEncoderSupported(
+    String recorderId,
+    AudioEncoder encoder,
+  ) async {
+    return false;
   }
 
   @override
-  Future<bool> isEncoderSupported(String recorderId, AudioEncoder encoder) {
-    return _getRecorder(recorderId).isEncoderSupported(encoder);
-  }
-
-  @override
-  Future<Amplitude> getAmplitude(String recorderId) {
-    return _getRecorder(recorderId).getAmplitude();
+  Future<Amplitude> getAmplitude(String recorderId) async {
+    return Amplitude(current: 0, max: 0);
   }
 
   @override
   Stream<RecordState> onStateChanged(String recorderId) {
-    return _getRecorder(recorderId).onStateChanged();
-  }
-
-  Recorder _getRecorder(String recorderId) {
-    final recorder = _recorders[recorderId];
-
-    if (recorder == null) {
-      throw PlatformException(
-        code: 'record',
-        message:
-            'Record has not yet been created or has already been disposed.',
-      );
-    }
-
-    return recorder;
+    return const Stream.empty();
   }
 }
